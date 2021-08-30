@@ -1,0 +1,9 @@
+flownet
+data/*
+!data/.gitkeep
+output/*
+!output/.gitkeep
+__pycache__/
+*.py[cod]
+*$py.class
+
