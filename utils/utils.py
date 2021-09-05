@@ -1,6 +1,5 @@
-from config import DATA_PATH
-from utils.habitat_utils import *
-from utils.flownet_utils import *
+import numpy as np
+from PIL import Image
 
 def photometric_error(img1: np.ndarray, img2: np.ndarray) -> float:
     if img1 is None or img2 is None or img1.shape != img2.shape:
@@ -12,7 +11,7 @@ def photometric_error(img1: np.ndarray, img2: np.ndarray) -> float:
     return np.sum(error)
 
 
-def load_final_image(path=DATA_PATH+ "final.png"):
+def load_final_image(path:str):
     try:
         final_img = Image.open(path).convert("RGB")
     except FileNotFoundError:

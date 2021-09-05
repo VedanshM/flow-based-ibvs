@@ -15,8 +15,7 @@ class args:
     rgb_max = 255.0
 
 net = FlowNet2(args()).cuda()
-tmp = torch.load(WEIGHTS_PATH)
-net.load_state_dict(tmp["state_dict"])
+net.load_state_dict(torch.load(WEIGHTS_PATH)["state_dict"])
 
 
 def get_flow(img1: np.ndarray, img2: np.ndarray) -> np.ndarray:
