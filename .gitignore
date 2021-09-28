@@ -1,8 +1,8 @@
 flownet
 data/*
 !data/.gitkeep
-output/*
-!output/.gitkeep
+results/*
+!results/.gitkeep
 __pycache__/
 *.py[cod]
 *$py.class

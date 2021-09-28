@@ -2,7 +2,7 @@ import habitat_sim
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 import numpy as np
 
-class HabitatEnv:
+class   HabitatEnv:
     def __init__(self, sim_settings, agent_init_state):
         self.make_sim(sim_settings)
         self.initialize_agent(agent_init_state)
@@ -84,13 +84,17 @@ class HabitatEnv:
         self.cur_obs = self.sim.get_sensor_observations()
         return self.cur_obs
 
-    def save_color_obs(self, caption: str, path: str, verbse:bool=True):
+    def save_color_obs(self, path: str, caption: str=None, verbose: bool = True):
         rgb_img = Image.fromarray(self.cur_obs["color_sensor"], mode="RGBA")
 
-        img = ImageOps.expand(rgb_img, border=33, fill=(255, 255, 255))
-        draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype("FreeSans.ttf", 30)
-        draw.text((30, 0), caption, (0, 0, 0), font)
+        if caption is not None:
+            img = ImageOps.expand(rgb_img, border=33, fill=(255, 255, 255))
+            draw = ImageDraw.Draw(img)
+            font = ImageFont.truetype("FreeSans.ttf", 30)
+            draw.text((30, 0), caption, (0, 0, 0), font)
+        else:
+            img = rgb_img
 
         img.save(path)
-        print(f"{path} saved.")
+        if verbose:
+            print(f"{path} saved.")
