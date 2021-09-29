@@ -38,10 +38,11 @@ def flow_arr_to_img(flow, path):
     img_arr = flow2img(flow)
     Image.fromarray(img_arr).save(path)
 
-def load_img_from_path(path:str)->np.ndarray:
-    return np.array(Image.open(path).convert('RGB').resize((512, 384)))
 
 def main():
+    def load_img_from_path(path:str)->np.ndarray:
+        return np.array(Image.open(path).convert('RGB').resize((512, 384)))
+
     flow = get_flow(load_img_from_path(IMG1_PATH),
                     load_img_from_path(IMG2_PATH))
     print(flow.shape)

@@ -7,7 +7,16 @@ class   HabitatEnv:
         self.make_sim(sim_settings)
         self.initialize_agent(agent_init_state)
         self.cur_obs = self.sim.get_sensor_observations()
+        self.imgshape = nx, ny = 384, 512
+        self._cam_prop = np.array([
+            [nx/2, 0, nx/2],
+            [0, ny/2, ny/2], 
+            [0, 0, 1]
+        ])
         
+    @property
+    def cam_prop(self)->np.ndarray:
+        return self._cam_prop[:]
 
     def initialize_agent(self, init_state):
         start_state = habitat_sim.agent.AgentState()
@@ -73,6 +82,7 @@ class   HabitatEnv:
 
     
     def step_agent(self,velocity):
+        velocity = velocity *[1, -1, -1, 1, -1, -1]
         self.agent_vel_controller.linear_velocity = np.array(velocity[0:3])
         self.agent_vel_controller.angular_velocity = np.array(velocity[3:])
         self.agent_vel_controller.controlling_lin_vel = True
@@ -98,3 +108,7 @@ class   HabitatEnv:
         img.save(path)
         if verbose:
             print(f"{path} saved.")
+    
+    @property
+    def agent_state(self):
+        return self.sim._default_agent.state
