@@ -19,12 +19,12 @@ class   HabitatEnv:
         return self._cam_prop[:]
 
     def initialize_agent(self, init_state):
-        start_state = habitat_sim.agent.AgentState()
-        x, y, z, w, p, q, r = init_state
-        start_state.position = np.array([x, y, z]).astype('float32')
-        start_state.rotation = np.quaternion(w, p, q, r)
-        self.agent = self.sim.initialize_agent(
-            self.sim._default_agent_id, start_state)
+        # start_state = habitat_sim.agent.AgentState()
+        # x, y, z, w, p, q, r = init_state
+        # start_state.position = np.array([x, y, z]).astype('float32')
+        # start_state.rotation = np.quaternion(w, p, q, r)
+        # self.agent = self.sim.initialize_agent(
+        #     self.sim._default_agent_id, start_state)
         
         agent_object_id = self.sim.add_object(1, 
             self.sim._default_agent.scene_node)

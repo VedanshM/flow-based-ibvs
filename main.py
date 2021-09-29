@@ -54,8 +54,7 @@ def get_next_velocity(prev_img: np.ndarray, dest_img: np.ndarray, sim:HabitatEnv
 
 def main():
     final_img = load_final_image(DEST_IMG_PATH)
-    sim = HabitatEnv(sim_settings, 
-                     [-1.792603,  1.6131673,  19.256025, 1, 0, 0, 0])
+    sim = HabitatEnv(sim_settings, None)
 
 
     step_cnt = 0
@@ -64,7 +63,7 @@ def main():
     perror = photometric_error(prev_img, final_img)
     print("Init error: ", perror)
 
-    while perror < ERROR_THRESH and step_cnt < MAX_STEPS:
+    while perror > ERROR_THRESH and step_cnt < MAX_STEPS:
         vel = get_next_velocity(prev_img, final_img, sim)
         sim.step_agent(vel)
 

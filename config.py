@@ -1,7 +1,7 @@
 DATA_PATH = './data/'
 RESULTS_PATH = './results/'
-TEST_SCENE = DATA_PATH + "test/Test.glb"
-DEST_IMG_PATH = DATA_PATH + 'final.png'
+TEST_SCENE = "./data/stokes/Stokes.glb"
+DEST_IMG_PATH = "./data/stokes/des.png"
 ERROR_THRESH = 500
 MAX_STEPS = 5000
 IBVS_LAMBDA = 0.01
