@@ -2,6 +2,7 @@ DATA_PATH = './data/'
 RESULTS_PATH = './results/'
 TEST_SCENE = "./data/stokes/Stokes.glb"
 DEST_IMG_PATH = "./data/stokes/des.png"
+WEIGHTS_PATH = './data/FlowNet2_checkpoint.pth.tar'
 ERROR_THRESH = 500
 MAX_STEPS = 5000
 IBVS_LAMBDA = 0.01
