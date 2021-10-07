@@ -1,100 +1,155 @@
 import habitat_sim
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 import numpy as np
+from config import sim_settings
 
-class   HabitatEnv:
-    def __init__(self, sim_settings, agent_init_state):
-        self.make_sim(sim_settings)
-        self.initialize_agent(agent_init_state)
+
+class HabitatEnv:
+    def __init__(self, settings=sim_settings):
+        self.make_sim(settings)
         self.cur_obs = self.sim.get_sensor_observations()
         self.imgshape = nx, ny = 384, 512
         self._cam_prop = np.array([
             [nx/2, 0, nx/2],
-            [0, ny/2, ny/2], 
+            [0, ny/2, ny/2],
             [0, 0, 1]
         ])
-        
+
     @property
-    def cam_prop(self)->np.ndarray:
+    def cam_prop(self) -> np.ndarray:
         return self._cam_prop[:]
 
-    def initialize_agent(self, init_state):
-        # start_state = habitat_sim.agent.AgentState()
-        # x, y, z, w, p, q, r = init_state
-        # start_state.position = np.array([x, y, z]).astype('float32')
-        # start_state.rotation = np.quaternion(w, p, q, r)
-        # self.agent = self.sim.initialize_agent(
-        #     self.sim._default_agent_id, start_state)
-        
-        agent_object_id = self.sim.add_object(1, 
-            self.sim._default_agent.scene_node)
-        self.sim.set_object_motion_type(
-            habitat_sim.physics.MotionType.KINEMATIC, agent_object_id
-        )
-        self.agent_vel_controller = self.sim.get_object_velocity_control(agent_object_id)
-        assert (
-            self.sim.get_object_motion_type(agent_object_id)
-            == habitat_sim.physics.MotionType.KINEMATIC
-        )
-    
     @property
-    def color_obs_img(self):
+    def obs_rgb(self):
         return self.cur_obs["color_sensor"][:, :, :3]
 
-    def make_sim(self, sim_settings:dict):
+    @property
+    def obs_depth(self):
+        return self.cur_obs["depth_sensor"]
+
+    def make_sim(self, settings: dict):
         # simulator backend
         sim_cfg = habitat_sim.SimulatorConfiguration()
-        sim_cfg.scene_id = sim_settings["scene_id"]
+        sim_cfg.scene_id = settings["scene_id"]
 
         # agent
         agent_cfg = habitat_sim.agent.AgentConfiguration()
 
-        # In the 1st example, we attach only one sensor,
-        # a RGB visual sensor, to the agent
-        rgb_sensor_spec = habitat_sim.CameraSensorSpec()
-        rgb_sensor_spec.uuid = "color_sensor"
-        rgb_sensor_spec.sensor_type = habitat_sim.SensorType.COLOR
-        rgb_sensor_spec.resolution = [
-            sim_settings["height"], sim_settings["width"]]
-        rgb_sensor_spec.position = [0.0, sim_settings["sensor_height"], 0.0]
+        sensor_specs = []
 
-        agent_cfg.sensor_specifications = [rgb_sensor_spec]
+        def create_camera_spec(**kw_args):
+            camera_sensor_spec = habitat_sim.CameraSensorSpec()
+            camera_sensor_spec.sensor_type = habitat_sim.SensorType.COLOR
+            camera_sensor_spec.resolution = [
+                settings["height"], settings["width"]]
+            camera_sensor_spec.position = [0, settings["sensor_height"], 0]
+            for k in kw_args:
+                setattr(camera_sensor_spec, k, kw_args[k])
+            return camera_sensor_spec
+
+        # Note: all sensors must have the same resolution
+        if settings["color_sensor"]:
+            color_sensor_spec = create_camera_spec(
+                uuid="color_sensor",
+                hfov=settings["hfov"],
+                sensor_type=habitat_sim.SensorType.COLOR,
+                sensor_subtype=habitat_sim.SensorSubType.PINHOLE,
+            )
+            sensor_specs.append(color_sensor_spec)
+
+        if settings["depth_sensor"]:
+            depth_sensor_spec = create_camera_spec(
+                uuid="depth_sensor",
+                hfov=settings["hfov"],
+                sensor_type=habitat_sim.SensorType.DEPTH,
+                channels=1,
+                sensor_subtype=habitat_sim.SensorSubType.PINHOLE,
+            )
+            sensor_specs.append(depth_sensor_spec)
+
+        if settings["semantic_sensor"]:
+            semantic_sensor_spec = create_camera_spec(
+                uuid="semantic_sensor",
+                hfov=settings["hfov"],
+                sensor_type=habitat_sim.SensorType.SEMANTIC,
+                channels=1,
+                sensor_subtype=habitat_sim.SensorSubType.PINHOLE,
+            )
+            sensor_specs.append(semantic_sensor_spec)
+
+        agent_cfg.sensor_specifications = sensor_specs
         agent_cfg.action_space = {
-            "move_right": habitat_sim.agent.ActionSpec("move_right", {"amount": 0}),
-            "move_left": habitat_sim.agent.ActionSpec("move_left", {"amount": 0}),
-            "move_up": habitat_sim.agent.ActionSpec("move_up", {"amount": 0}),
-
-            "move_down": habitat_sim.agent.ActionSpec("move_down", {"amount": 0}),
-            "move_forward": habitat_sim.agent.ActionSpec("move_forward", {"amount": 0}),
-            "move_backward": habitat_sim.agent.ActionSpec("move_backward", {"amount": 0}),
-
-            "look_left": habitat_sim.agent.ActionSpec("look_left", {"amount": 0}),
-            "look_right": habitat_sim.agent.ActionSpec("look_right", {"amount": 0}),
-            "look_up": habitat_sim.agent.ActionSpec("look_up", {"amount": 0}),
-            "look_down": habitat_sim.agent.ActionSpec("look_down", {"amount": 0}),
-            "look_anti": habitat_sim.agent.ActionSpec("look_anti", {"amount": 0}),
-            "look_clock": habitat_sim.agent.ActionSpec("look_clock", {"amount": 0}),
-
+            "move_forward": habitat_sim.agent.ActionSpec(
+                "move_forward", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "move_backward": habitat_sim.agent.ActionSpec(
+                "move_backward", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "move_down": habitat_sim.agent.ActionSpec(
+                "move_down", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "turn_left": habitat_sim.agent.ActionSpec(
+                "turn_left", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "turn_right": habitat_sim.agent.ActionSpec(
+                "turn_right", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "look_up": habitat_sim.agent.ActionSpec(
+                "look_up", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "look_down": habitat_sim.agent.ActionSpec(
+                "look_down", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "look_left": habitat_sim.agent.ActionSpec(
+                "look_left", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "look_right": habitat_sim.agent.ActionSpec(
+                "look_right", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "look_anti": habitat_sim.agent.ActionSpec(
+                "rotate_sensor_anti_clockwise", habitat_sim.agent.ActuationSpec(
+                    0.)
+            ),
+            "look_clock": habitat_sim.agent.ActionSpec(
+                "rotate_sensor_clockwise", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "move_down": habitat_sim.agent.ActionSpec(
+                "move_down", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "move_up": habitat_sim.agent.ActionSpec(
+                "move_up", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "move_left": habitat_sim.agent.ActionSpec(
+                "move_left", habitat_sim.agent.ActuationSpec(0.)
+            ),
+            "move_right": habitat_sim.agent.ActionSpec(
+                "move_right", habitat_sim.agent.ActuationSpec(0.)
+            ),
         }
 
-        config =  habitat_sim.Configuration(sim_cfg, [agent_cfg])
+        config = habitat_sim.Configuration(sim_cfg, [agent_cfg])
         self.sim = habitat_sim.Simulator(config)
+        self.sim.initialize_agent(settings["default_agent"])
 
-    
-    def step_agent(self,velocity):
-        velocity = velocity *[1, -1, -1, 1, -1, -1]
-        self.agent_vel_controller.linear_velocity = np.array(velocity[0:3])
-        self.agent_vel_controller.angular_velocity = np.array(velocity[3:])
-        self.agent_vel_controller.controlling_lin_vel = True
-        self.agent_vel_controller.controlling_ang_vel = True
-        # step with world time
-        self.sim.step_physics(1/60)
-        self.agent_vel_controller.lin_vel_is_local = True
-        self.agent_vel_controller.ang_vel_is_local = True
-        self.cur_obs = self.sim.get_sensor_observations()
+    def step_agent(self, velocity, FPS=100):
+        v = velocity * [1, -1, -1, 1, -1, -1]/FPS
+        v[3:] = np.rad2deg(v[3:])
+        self.sim.config.agents[0].action_space['move_right'].actuation.amount = v[0]
+        self.sim.config.agents[0].action_space['move_up'].actuation.amount = v[1]
+        self.sim.config.agents[0].action_space['move_backward'].actuation.amount = v[2]
+        self.sim.config.agents[0].action_space['look_left'].actuation.amount = v[4]
+        self.sim.config.agents[0].action_space['look_up'].actuation.amount = v[3]
+        self.sim.config.agents[0].action_space['look_anti'].actuation.amount = v[5]
+
+        self.sim.step("move_right")
+        self.sim.step("move_backward")
+        self.sim.step("move_up")
+        self.sim.step("look_up")
+        self.sim.step("look_left")
+        self.cur_obs = self.sim.step("look_anti")
         return self.cur_obs
 
-    def save_color_obs(self, path: str, caption: str=None, verbose: bool = True):
+    def save_color_obs(self, path: str, caption: str = None, verbose: bool = True):
         rgb_img = Image.fromarray(self.cur_obs["color_sensor"], mode="RGBA")
 
         if caption is not None:
@@ -108,7 +163,7 @@ class   HabitatEnv:
         img.save(path)
         if verbose:
             print(f"{path} saved.")
-    
+
     @property
     def agent_state(self):
         return self.sim._default_agent.state
@@ -119,6 +174,15 @@ class   HabitatEnv:
         ret = state.position.tolist()
         ret.append(state.rotation.real)
         ret += state.rotation.imag.tolist()
-        print(ret)
         ret = np.round(ret, 6)
         return ret
+
+
+def testing():
+    sim = HabitatEnv()
+    print(sim.agent_state_compact)
+    Image.fromarray(sim.cur_obs["color_sensor"], mode="RGBA").show()
+
+
+if __name__ == '__main__':
+    testing()

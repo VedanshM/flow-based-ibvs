@@ -6,22 +6,22 @@ from config import DEST_IMG_PATH, ERROR_THRESH, MAX_STEPS, RESULTS_PATH, sim_set
 
 
 def main():
-    sim = HabitatEnv(sim_settings, None)
+    sim = HabitatEnv()
     photovs = PhotoVS(DEST_IMG_PATH, Z=1)
 
     step_cnt = 0
     sim.save_color_obs(RESULTS_PATH + "frame_%05d.png" % step_cnt)
-    prev_img = sim.color_obs_img
+    prev_img = sim.obs_rgb
     perror = photometric_error(prev_img, photovs.des_img)
     print("Init error: ", perror)
 
     while perror > ERROR_THRESH and step_cnt < MAX_STEPS:
-        vel = photovs.get_next_velocity(step_cnt, sim.color_obs_img)
+        vel = photovs.get_next_velocity(step_cnt, sim.obs_rgb)
         sim.step_agent(vel)
 
         step_cnt += 1
-        prev_img = sim.color_obs_img
-        perror = photometric_error(sim.color_obs_img, photovs.des_img)
+        prev_img = sim.obs_rgb
+        perror = photometric_error(sim.obs_rgb, photovs.des_img)
         print(f"step : {step_cnt}")
         print(f"error: {perror}")
         print(f"state: {sim.agent_state}")

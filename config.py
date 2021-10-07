@@ -1,7 +1,7 @@
 DATA_PATH = './data/'
 RESULTS_PATH = './results/'
-TEST_SCENE = "./data/stokes/Stokes.glb"
-DEST_IMG_PATH = "./data/stokes/des.png"
+TEST_SCENE = "./data/eudora/Eudora.glb"
+DEST_IMG_PATH = "./data/eudora/des.png"
 WEIGHTS_PATH = './data/FlowNet2_checkpoint.pth.tar'
 ERROR_THRESH = 500
 MAX_STEPS = 5000
@@ -14,4 +14,9 @@ sim_settings = {
     "sensor_height": 1.5,       # Height of sensors in meters, relative to the agent
     "width": 512,               # Spatial resolution of the observations
     "height": 384,
+    "hfov": 90,
+    "color_sensor": True,  # RGB sensor
+    "semantic_sensor": False,  # Semantic sensor
+    "depth_sensor": True,  # Depth sensor
+    "seed": 1,
 }
