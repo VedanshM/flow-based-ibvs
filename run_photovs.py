@@ -22,14 +22,14 @@ def main():
         step_cnt += 1
         prev_img = sim.obs_rgb
         perror = photometric_error(sim.obs_rgb, photovs.des_img)
-        print(f"step : {step_cnt}")
-        print(f"error: {perror}")
-        print(f"state: {sim.agent_state}")
-        import time
-        time.sleep(0.3)
+        if step_cnt % 10 == 0:
+            print(f"step : {step_cnt}")
+            print(f"error: {perror}")
+            print(f"vel: ", vel)
+            print(f"state: {sim.agent_state_compact}")
 
         sim.save_color_obs(path=pathjoin(
-            RESULTS_PATH, f"frame_%05d.png" % step_cnt))
+            RESULTS_PATH, f"frame_%05d.png" % step_cnt), verbose=False)
 
 
 if __name__ == '__main__':

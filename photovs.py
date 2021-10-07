@@ -5,8 +5,8 @@ import numpy as np
 class PhotoVS:
     def __init__(self, des_img_path,
                  Z=1, steps_thresh=9000,
-                 LM_LAMBDA=3, LM_MU=0.01,
-                 GN_LAMBDA=30, GN_MU=0.0001,
+                 LM_LAMBDA=0.1, LM_MU=0.01,
+                 GN_LAMBDA=0.1, GN_MU=0.0001,
                  ):
         self.des_img = np.array(Image.open(des_img_path))
         self.Id = PhotoVS.rgb_to_I(self.des_img)
