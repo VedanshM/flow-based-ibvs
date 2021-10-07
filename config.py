@@ -3,6 +3,7 @@ RESULTS_PATH = './results/'
 TEST_SCENE = "./data/eudora/Eudora.glb"
 DEST_IMG_PATH = "./data/eudora/des.png"
 WEIGHTS_PATH = './data/FlowNet2_checkpoint.pth.tar'
+PERR_LOG_FILE = "./results/err_log.txt"
 ERROR_THRESH = 500
 MAX_STEPS = 5000
 IBVS_LAMBDA = 0.01
