@@ -112,3 +112,13 @@ class   HabitatEnv:
     @property
     def agent_state(self):
         return self.sim._default_agent.state
+
+    @property
+    def agent_state_compact(self):
+        state = self.agent_state
+        ret = state.position.tolist()
+        ret.append(state.rotation.real)
+        ret += state.rotation.imag.tolist()
+        print(ret)
+        ret = np.round(ret, 6)
+        return ret

@@ -5,9 +5,9 @@ import cv2
 
 class PhotoVS:
     def __init__(self, des_img_path,
-                 Z=1, steps_thresh=900,
-                 LM_LAMBDA=0.001, LM_MU=0.03,
-                 GN_LAMBDA=0.001, GN_MU=0.001,
+                 Z=1, steps_thresh=9000,
+                 LM_LAMBDA=3, LM_MU=0.01,
+                 GN_LAMBDA=30, GN_MU=0.0001,
                  ):
         self.des_img = np.array(Image.open(des_img_path))
         self.Id = PhotoVS.rgb_to_I(self.des_img)

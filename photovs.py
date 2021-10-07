@@ -4,9 +4,9 @@ import numpy as np
 
 class PhotoVS:
     def __init__(self, des_img_path,
-                 Z=1, steps_thresh=900,
-                 LM_LAMBDA=0.001, LM_MU=0.03,
-                 GN_LAMBDA=0.001, GN_MU=0.001,
+                 Z=1, steps_thresh=9000,
+                 LM_LAMBDA=3, LM_MU=0.01,
+                 GN_LAMBDA=30, GN_MU=0.0001,
                  ):
         self.des_img = np.array(Image.open(des_img_path))
         self.Id = PhotoVS.rgb_to_I(self.des_img)
@@ -30,7 +30,7 @@ class PhotoVS:
 
     @property
     def img_shape(self):
-        return self.des_img.shape
+        return self.des_img.shape[:2]
 
     def set_interaction_matrices(self, Z):
         row_cnt, col_cnt = self.img_shape
@@ -47,6 +47,8 @@ class PhotoVS:
         y = y.flatten()
 
         Iy, Ix = np.gradient(self.Id)
+        Ix = Ix.flatten()
+        Iy = Iy.flatten()
 
         L = np.array([
             Ix*Zi, Iy*Zi,

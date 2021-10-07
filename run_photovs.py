@@ -25,6 +25,8 @@ def main():
         print(f"step : {step_cnt}")
         print(f"error: {perror}")
         print(f"state: {sim.agent_state}")
+        import time
+        time.sleep(0.3)
 
         sim.save_color_obs(path=pathjoin(
             RESULTS_PATH, f"frame_%05d.png" % step_cnt))
