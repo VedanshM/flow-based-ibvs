@@ -180,8 +180,11 @@ class HabitatEnv:
 
 def testing():
     sim = HabitatEnv()
+    vel = np.ones(6)/5
+    vel[3:] = np.deg2rad([5, 5, 5])
+    sim.step_agent(vel, FPS=1)
     print(sim.agent_state_compact)
-    Image.fromarray(sim.cur_obs["color_sensor"], mode="RGBA").show()
+    Image.fromarray(sim.cur_obs["color_sensor"], mode="RGBA").save("des.png")
 
 
 if __name__ == '__main__':

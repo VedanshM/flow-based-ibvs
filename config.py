@@ -1,7 +1,7 @@
 DATA_PATH = './data/'
 RESULTS_PATH = './results/'
-TEST_SCENE = "./data/eudora/Eudora.glb"
-DEST_IMG_PATH = "./data/eudora/des.png"
+TEST_SCENE = "./data/lite/Eudora.glb"
+DEST_IMG_PATH = "./data/lite/des.png"
 WEIGHTS_PATH = './data/FlowNet2_checkpoint.pth.tar'
 PERR_LOG_FILE = "./results/err_log.txt"
 ERROR_THRESH = 500
