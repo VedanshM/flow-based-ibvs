@@ -13,7 +13,7 @@ class Dfvs:
 
     @property
     def img_shape(self):
-        return self.des_img.shape
+        return self.des_img.shape[:2]
 
     def get_next_velocity(self, cur_img, prev_img=None, depth=None) -> np.ndarray:
         assert (not prev_img) or (not depth)
