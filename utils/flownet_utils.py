@@ -21,14 +21,14 @@ net = FlowNet2(args()).cuda()
 net.load_state_dict(torch.load(WEIGHTS_PATH)["state_dict"])
 
 
-def get_flow(img1: np.ndarray, img2: np.ndarray, cuda=True) -> Union[torch.tensor, np.ndarray]:
+def get_flow(img1: np.ndarray, img2: np.ndarray, cuda=False) -> Union[torch.tensor, np.ndarray]:
     images = [img1, img2]
     images = np.array(images).transpose(3, 0, 1, 2)
     images = torch.from_numpy(images.astype(np.float32)).unsqueeze(0).cuda()
 
     flow: torch.Tensor = net(images).squeeze().permute(1, 2, 0).data
     if not cuda:
-        flow = flow.data.cpu().numpy()
+        flow = flow.cpu().numpy()
     return flow
 
 
