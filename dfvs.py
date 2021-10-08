@@ -51,7 +51,7 @@ class Dfvs:
         }
 
     def get_interaction_mat(self, Z, inverted=True):
-        Zi = (Z if inverted else 1/Z).flatten()
+        Zi = (Z if inverted else 10/(Z+1)).flatten()
         Zi = np.clip(Zi, -1e9, 1e9)
         x = self.inter_utils["x"]
         y = self.inter_utils["y"]
