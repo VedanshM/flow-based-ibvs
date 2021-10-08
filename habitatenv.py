@@ -166,7 +166,7 @@ class HabitatEnv:
 
     @property
     def agent_state(self):
-        return self.sim._default_agent.state
+        return self.sim._default_agent.state.sensor_states["color_sensor"]
 
     @property
     def agent_state_compact(self):
