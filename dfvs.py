@@ -4,7 +4,11 @@ from PIL import Image
 
 
 class Dfvs:
-    def __init__(self, des_img_path, LM_LAMBDA=0.01, LM_MU=0.03) -> None:
+    TRUEDEPTH = 0
+    FLOWDEPTH = 1
+
+    def __init__(self, des_img_path, LM_LAMBDA=0.01, LM_MU=0.03, mode=0) -> None:
+        self.mode = mode
         self.des_img = np.array(Image.open(des_img_path).convert("RGB"))
         self.LM_LAMBDA = LM_LAMBDA
         self.LM_MU = LM_MU
@@ -17,12 +21,13 @@ class Dfvs:
     def get_next_velocity(self, cur_img, prev_img=None, depth=None) -> np.ndarray:
         assert (not prev_img) or (not depth)
 
-        flow_error = get_flow(self.des_img, cur_img).transpose(1,0,2).flatten()
+        flow_error = get_flow(
+            self.des_img, cur_img).transpose(1, 0, 2).flatten()
         if depth is not None:
-            L = self.get_interaction_mat(depth, False)
+            L = self.get_interaction_mat(depth, Dfvs.TRUEDEPTH)
         else:
             flow_inv_depth = get_flow(cur_img, prev_img)
-            L = self.get_interaction_mat(flow_inv_depth, True)
+            L = self.get_interaction_mat(flow_inv_depth, Dfvs.FLOWDEPTH)
 
         H = L.T @ L
         vel = -self.LM_LAMBDA * np.linalg.pinv(
@@ -51,40 +56,27 @@ class Dfvs:
             "zero": np.zeros_like(x)
         }
 
-    def get_interaction_mat(self, Z, inverted=True):
-        nx, ny = 512, 384
-        KK = np.array([[nx/2,0,nx/2],[0,ny/2, ny/2 ],[ 0, 0, 1]])
-        px, py = KK[0, 0], KK[1, 1]
-        v_0, u_0 = KK[0, 2], KK[1, 2]
-        s = vik.copy()
-        L = np.zeros((nx*ny*2, 6))
+    def get_interaction_mat(self, Z, mode=None):
+        assert Z.shape == self.img_shape
 
-        for m in range(0, nx*ny*2 - 2, 2):
-            x = (int(s[m]) - int(u_0))/px
-            y = (int(s[m+1]) - int(v_0))/py
-            t = int(s[m])
-            u = int(s[m+1])
-            Zinv = 10/(Z[u, t] + 1)
-            
-            
-            L[m, 0] = -Zinv
-            L[m,1]=0
-            L[m,2]=x*Zinv
-            L[m,3]=x*y
-            L[m,4]=-(1+x**2)
-            L[m,5]=y
-            
-            L[m+1,0]= 0
-            L[m+1,1]= -Zinv
-            L[m+1,2]= y*Zinv
-            L[m+1,3]= 1+y**2
-            L[m+1,4]= -x*y
-            L[m+1,5]= -x
+        if mode is None:
+            mode = self.mode
+        if mode == self.TRUEDEPTH:
+            Zi = 10/(Z + 1)
+        elif mode == self.FLOWDEPTH:
+            Zi = Z + 1
+        Zi = Zi.T.flatten()
+
+        x = self.inter_utils["x"]
+        y = self.inter_utils["y"]
+        zero = self.inter_utils["zero"]
+
+        L = np.array([
+            [-Zi, zero, x*Zi, x*y, -(1 + x**2), y],
+            [zero, -Zi, y*Zi, 1 + y**2, -x*y, -x],
+        ])
+
+        assert L.shape == (2, 6, x.shape[0])
+        L = L.transpose(2, 0, 1).reshape(-1, 6)
 
         return L
-
-nx, ny = (512,384)
-vik=np.array([])
-for i in range(nx):
-    for j in range(ny):
-        vik=np.hstack((vik,np.array([i,j])))
