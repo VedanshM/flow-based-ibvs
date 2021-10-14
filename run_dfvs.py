@@ -7,7 +7,8 @@ from config import DEST_IMG_PATH, ERROR_THRESH, MAX_STEPS, PERR_LOG_FILE, RESULT
 
 def main():
     sim = HabitatEnv()
-    dfvs = Dfvs(DEST_IMG_PATH)
+    # dfvs = Dfvs(DEST_IMG_PATH, mode=Dfvs.TRUEDEPTH)
+    dfvs = Dfvs(DEST_IMG_PATH, mode=Dfvs.FLOWDEPTH)
     err_log_f = open(PERR_LOG_FILE, "w+")
 
     steps = 0
@@ -17,7 +18,9 @@ def main():
     print("Init error: ", photo_err)
 
     while photo_err > ERROR_THRESH and steps < MAX_STEPS:
-        vel = dfvs.get_next_velocity(sim.obs_rgb, depth=sim.obs_depth, err_log_f=err_log_f)
+        # vel = dfvs.get_next_velocity(sim.obs_rgb, prev_img=prev_img, err_log_f=err_log_f)
+        vel = dfvs.get_next_velocity(
+            sim.obs_rgb, prev_img=prev_img, err_log_f=err_log_f)
         sim.step_agent(vel, FPS=1)
 
         steps += 1

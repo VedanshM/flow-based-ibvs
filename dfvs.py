@@ -19,7 +19,7 @@ class Dfvs:
         return self.des_img.shape[:2]
 
     def get_next_velocity(self, cur_img, prev_img=None, depth=None, err_log_f=None) -> np.ndarray:
-        assert (not prev_img) or (not depth)
+        assert not(prev_img is None and depth is None)
 
         flow_error = get_flow(
             self.des_img, cur_img).transpose(1, 0, 2).flatten()
@@ -27,6 +27,7 @@ class Dfvs:
             L = self.get_interaction_mat(depth, Dfvs.TRUEDEPTH)
         else:
             flow_inv_depth = get_flow(cur_img, prev_img)
+            flow_inv_depth = np.linalg.norm(flow_inv_depth, axis=2)
             L = self.get_interaction_mat(flow_inv_depth, Dfvs.FLOWDEPTH)
 
         H = L.T @ L
@@ -61,7 +62,7 @@ class Dfvs:
         }
 
     def get_interaction_mat(self, Z, mode=None):
-        assert Z.shape == self.img_shape
+        assert Z.shape == self.img_shape, (Z.shape, self.img_shape)
 
         if mode is None:
             mode = self.mode
