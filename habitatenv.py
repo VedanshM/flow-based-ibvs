@@ -8,16 +8,7 @@ class HabitatEnv:
     def __init__(self, settings=sim_settings):
         self.make_sim(settings)
         self.cur_obs = self.sim.get_sensor_observations()
-        self.imgshape = nx, ny = 384, 512
-        self._cam_prop = np.array([
-            [nx/2, 0, nx/2],
-            [0, ny/2, ny/2],
-            [0, 0, 1]
-        ])
-
-    @property
-    def cam_prop(self) -> np.ndarray:
-        return self._cam_prop[:]
+        self.imgshape = 384, 512
 
     @property
     def obs_rgb(self):
@@ -131,7 +122,7 @@ class HabitatEnv:
         self.sim.initialize_agent(settings["default_agent"])
 
     def step_agent(self, velocity, FPS=100):
-        v = velocity * [1, -1, -1, 1, -1, -1]/FPS
+        v = velocity * [1, -1, -1, 1, -1, 1]/FPS
         v[3:] = np.rad2deg(v[3:])
         self.sim.config.agents[0].action_space['move_right'].actuation.amount = v[0]
         self.sim.config.agents[0].action_space['move_up'].actuation.amount = v[1]
