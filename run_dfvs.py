@@ -17,7 +17,7 @@ def main():
     print("Init error: ", photo_err)
 
     while photo_err > ERROR_THRESH and steps < MAX_STEPS:
-        vel = dfvs.get_next_velocity(sim.obs_rgb, depth=sim.obs_depth)
+        vel = dfvs.get_next_velocity(sim.obs_rgb, depth=sim.obs_depth, err_log_f=err_log_f)
         sim.step_agent(vel, FPS=1)
 
         steps += 1
@@ -29,7 +29,6 @@ def main():
             print(f"vel: ", vel)
             print(f"state: {sim.agent_state_compact}")
 
-        err_log_f.write(str(photo_err)+"\n")
         sim.save_color_obs(path=pathjoin(
             RESULTS_PATH, f"frame_%05d.png" % steps), verbose=False)
         err_log_f.flush()

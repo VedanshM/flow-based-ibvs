@@ -18,7 +18,7 @@ class Dfvs:
     def img_shape(self):
         return self.des_img.shape[:2]
 
-    def get_next_velocity(self, cur_img, prev_img=None, depth=None) -> np.ndarray:
+    def get_next_velocity(self, cur_img, prev_img=None, depth=None, err_log_f=None) -> np.ndarray:
         assert (not prev_img) or (not depth)
 
         flow_error = get_flow(
@@ -33,7 +33,11 @@ class Dfvs:
         vel = -self.LM_LAMBDA * np.linalg.pinv(
             H + self.LM_MU*(H.diagonal())) @ L.T @ flow_error
 
-        print("FLOW ERROR: ", np.sum((flow_error)))
+        flow_err = np.sum((flow_error))
+        print("FLOW ERROR: ", flow_err)
+        if err_log_f is not None:
+            err_log_f.write(str(flow_err) + "\n")
+
         return vel
 
     def set_interaction_utils(self):
