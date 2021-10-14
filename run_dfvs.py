@@ -18,7 +18,7 @@ def main():
 
     while photo_err > ERROR_THRESH and steps < MAX_STEPS:
         vel = dfvs.get_next_velocity(sim.obs_rgb, depth=sim.obs_depth)
-        sim.step_agent(vel)
+        sim.step_agent(vel, FPS=1)
 
         steps += 1
         prev_img = sim.obs_rgb
