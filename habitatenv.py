@@ -174,6 +174,8 @@ def testing():
     vel[3:] = np.deg2rad([5, 5, 5])*1e-4
     sim.step_agent(vel, FPS=1)
     print(sim.agent_state_compact)
+    print(sim.obs_rgb)
+    exit(0)
     Image.fromarray(sim.cur_obs["color_sensor"], mode="RGBA").save("des.png")
 
 
