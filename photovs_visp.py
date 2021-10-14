@@ -6,8 +6,8 @@ import cv2
 class PhotoVS:
     def __init__(self, des_img_path,
                  Z=1, steps_thresh=9000,
-                 LM_LAMBDA=3, LM_MU=0.01,
-                 GN_LAMBDA=30, GN_MU=0.0001,
+                 LM_LAMBDA=0.1, LM_MU=0.01,
+                 GN_LAMBDA=0.1, GN_MU=0.0001,
                  ):
         self.des_img = np.array(Image.open(des_img_path))
         self.Id = PhotoVS.rgb_to_I(self.des_img)
@@ -31,7 +31,7 @@ class PhotoVS:
 
     @property
     def img_shape(self):
-        return self.des_img.shape
+        return self.des_img.shape[:2]
 
     def set_interaction_matrices(self, Z):
         row_cnt, col_cnt = self.img_shape
@@ -53,23 +53,29 @@ class PhotoVS:
 
         for i in range(row_cnt):
             for j in range(col_cnt):
-                ix = px*((2047.0*(I[i][j+1] - I[i][j-1]) +
-                          913.0*(I[i][j+2] - I[i][j-2]) +
-                          112.0*(I[i][j+3] - I[i][j-3]))/8418.0)
-                iy = py*((2047.0*(I[i+1][j] - I[i-1][j]) +
-                          913.0*(I[i+2][j] - I[i-2][j]) +
-                          112.0*(I[i+3][j] - I[i-3][j]))/8418.0)
+                ix = px*((2047.0*(I[i][min(j+1, col_cnt-1)] - I[i][max(j-1, 0)]) +
+                          913.0*(I[i][min(j+2, col_cnt-1)] - I[i][max(j-2, 0)]) +
+                          112.0*(I[i][min(j+3, col_cnt-1)] - I[i][max(j-3, 0)]))/8418.0)
+                iy = py*((2047.0*(I[min(i+1, row_cnt-1)][j] - I[max(i-1, 0)][j]) +
+                          913.0*(I[min(i+2, row_cnt-1)][j] - I[max(i-2, 0)][j]) +
+                          112.0*(I[min(i+3, row_cnt-1)][j] - I[max(i-3, 0)][j]))/8418.0)
                 Ix.append(ix)
                 Iy.append(iy)
+        Ix = np.array(Ix)
+        Iy = np.array(Iy)
 
         L = np.zeros((x.shape[0], 6))
         for m in range(x.shape[0]):
-            L[m][0] = Ix*Zi
-            L[m][1] = Iy*Zi
-            L[m][2] = -(x*Ix+y*Iy)*Zi
-            L[m][3] = -Ix*x*y-(1+y*y)*Iy
-            L[m][4] = (1+x*x)*Ix + Iy*x*y
-            L[m][5] = Iy*x-Ix*y
+            ix = Ix[m]
+            iy = Iy[m]
+            x_ = x[m]
+            y_ = y[m]
+            L[m][0] = ix*Zi
+            L[m][1] = iy*Zi
+            L[m][2] = -(x_*ix+y_*iy)*Zi
+            L[m][3] = -ix*x_*y_-(1+y_*y_)*iy
+            L[m][4] = (1+x_*x_)*ix + iy*x_*y_
+            L[m][5] = iy*x_-ix*y_
 
         H = L.T @ L
 

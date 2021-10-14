@@ -39,7 +39,6 @@ class HabitatEnv:
 
         def create_camera_spec(**kw_args):
             camera_sensor_spec = habitat_sim.CameraSensorSpec()
-            camera_sensor_spec.sensor_type = habitat_sim.SensorType.COLOR
             camera_sensor_spec.resolution = [
                 settings["height"], settings["width"]]
             camera_sensor_spec.position = [0, settings["sensor_height"], 0]
@@ -181,7 +180,7 @@ class HabitatEnv:
 def testing():
     sim = HabitatEnv()
     vel = np.ones(6)/5
-    vel[3:] = np.deg2rad([5, 5, 5])
+    vel[3:] = np.deg2rad([5, 5, 5])*1e-4
     sim.step_agent(vel, FPS=1)
     print(sim.agent_state_compact)
     Image.fromarray(sim.cur_obs["color_sensor"], mode="RGBA").save("des.png")

@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 
 def photometric_error(img1: np.ndarray, img2: np.ndarray) -> float:
+    assert img1.shape == img2.shape
     img1 = img1[:, :, :3]
     img2 = img2[:, :, :3]
     error = (img1 - img2 + 0.0)**2
