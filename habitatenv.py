@@ -139,7 +139,7 @@ class HabitatEnv:
         self.cur_obs = self.sim.step("look_anti")
         return self.cur_obs
 
-    def save_color_obs(self, path: str, caption: str = None, verbose: bool = True):
+    def save_color_obs(self, path: str, caption: str = None, verbose: bool = False):
         rgb_img = Image.fromarray(self.cur_obs["color_sensor"], mode="RGBA")
 
         if caption is not None:
@@ -170,12 +170,13 @@ class HabitatEnv:
 
 def testing():
     sim = HabitatEnv()
-    vel = np.ones(6)/5
-    vel[3:] = np.deg2rad([5, 5, 5])*1e-4
+    Image.fromarray(sim.cur_obs["color_sensor"], mode="RGBA").save("init.png")
+    vel = np.zeros(6)
+    vel[:3] = [1.5, -0.25, 2]
+    vel[3:] = [10, -20, 3]
     sim.step_agent(vel, FPS=1)
-    print(sim.agent_state_compact)
-    print(sim.obs_rgb)
-    exit(0)
+    with open("des_pose.txt", "w+") as f:
+        f.write(str(sim.agent_state_compact))
     Image.fromarray(sim.cur_obs["color_sensor"], mode="RGBA").save("des.png")
 
 

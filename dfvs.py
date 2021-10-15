@@ -18,11 +18,12 @@ class Dfvs:
     def img_shape(self):
         return self.des_img.shape[:2]
 
-    def get_next_velocity(self, cur_img, prev_img=None, depth=None, err_log_f=None) -> np.ndarray:
+    def get_next_velocity(self, cur_img, prev_img=None, depth=None):
         assert not(prev_img is None and depth is None)
 
-        flow_error = get_flow(
-            self.des_img, cur_img).transpose(1, 0, 2).flatten()
+        flow_error = get_flow(self.des_img, cur_img)
+        flow_error = flow_error.transpose(1, 0, 2).flatten()
+
         if depth is not None:
             L = self.get_interaction_mat(depth, Dfvs.TRUEDEPTH)
         else:
@@ -34,12 +35,7 @@ class Dfvs:
         vel = -self.LM_LAMBDA * np.linalg.pinv(
             H + self.LM_MU*(H.diagonal())) @ L.T @ flow_error
 
-        flow_err = np.sum((flow_error))
-        print("FLOW ERROR: ", flow_err)
-        if err_log_f is not None:
-            err_log_f.write(str(flow_err) + "\n")
-
-        return vel
+        return vel, np.abs(flow_error).sum()
 
     def set_interaction_utils(self):
         row_cnt, col_cnt = self.img_shape

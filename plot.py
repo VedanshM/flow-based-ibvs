@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
+from os import path
+from config import FLOW_ERR_LOG_FILE, RESULTS_PATH, PHOTO_ERR_LOG_FILE
 
-from config import PERR_LOG_FILE, RESULTS_PATH
 
-with open(PERR_LOG_FILE) as f:
-    data = f.readlines()
+def create_graph(file, ylabel, name):
+    with open(file) as f:
+        data = f.readlines()
 
-errors = [float(x[:-1]) for x in data]
+    errors = [float(x[:-1]) for x in data]
 
-plt.plot(errors)
-plt.savefig(RESULTS_PATH+"graph.png")
+    plt.plot(errors)
+    plt.xlabel("iterations")
+    plt.ylabel(ylabel)
+    plt.savefig(path.join(RESULTS_PATH, name))
+    plt.close()
+
+
+create_graph(FLOW_ERR_LOG_FILE, "Flow Error", "flow_error.png")
+create_graph(PHOTO_ERR_LOG_FILE, "Photometric Error", "photo_error.png")

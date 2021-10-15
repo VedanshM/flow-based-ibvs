@@ -2,13 +2,13 @@ from photovs import PhotoVS
 from utils.utils import photometric_error
 from os.path import join as pathjoin
 from habitatenv import HabitatEnv
-from config import DEST_IMG_PATH, ERROR_THRESH, MAX_STEPS, PERR_LOG_FILE, RESULTS_PATH, sim_settings
+from config import DEST_IMG_PATH, ERROR_THRESH, MAX_STEPS, FLOW_ERR_LOG_FILE, RESULTS_PATH, sim_settings
 
 
 def main():
     sim = HabitatEnv()
     photovs = PhotoVS(DEST_IMG_PATH, Z=1)
-    err_log_f = open(PERR_LOG_FILE, "w+")
+    err_log_f = open(FLOW_ERR_LOG_FILE, "w+")
 
     steps = 0
     sim.save_color_obs(RESULTS_PATH + "frame_%05d.png" % steps)
