@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf results/*png
+rm -rf results/frame*png
