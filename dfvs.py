@@ -7,7 +7,7 @@ class Dfvs:
     TRUEDEPTH = 0
     FLOWDEPTH = 1
 
-    def __init__(self, des_img_path, LM_LAMBDA=0.01, LM_MU=0.03, mode=0) -> None:
+    def __init__(self, des_img_path, LM_LAMBDA=1, LM_MU=0.03, mode=0) -> None:
         self.mode = mode
         self.des_img = np.array(Image.open(des_img_path).convert("RGB"))
         self.LM_LAMBDA = LM_LAMBDA

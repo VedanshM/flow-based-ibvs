@@ -24,7 +24,7 @@ def main():
                                      depth=sim.obs_depth,       # for true depth
                                     #  prev_img=prev_img,       # for flow depth
                                      )
-        sim.step_agent(vel, FPS=1)
+        sim.step_agent(vel, FPS=100)
 
         steps += 1
         prev_img = sim.obs_rgb
