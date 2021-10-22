@@ -1,7 +1,7 @@
 DATA_PATH = './data/'
 RESULTS_PATH = './results/'
-TEST_SCENE = "./data/stokes/Stokes.glb"
-DEST_IMG_PATH = "./data/stokes/des.png"
+TEST_SCENE = "./data/quantico/Quantico.glb"
+DEST_IMG_PATH = "./data/quantico/des.png"
 WEIGHTS_PATH = './data/FlowNet2_checkpoint.pth.tar'
 FLOW_ERR_LOG_FILE = "./results/flow_err_log.txt"
 PHOTO_ERR_LOG_FILE = "./results/photo_err_log.txt"

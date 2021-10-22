@@ -7,8 +7,8 @@ class Dfvs:
     TRUEDEPTH = 0
     FLOWDEPTH = 1
 
-    def __init__(self, des_img_path, LM_LAMBDA=1, LM_MU=0.03, mode=0) -> None:
-        self.mode = mode
+    def __init__(self, des_img_path, LM_LAMBDA=0.06, LM_MU=0.03, v_max_abs = 1):
+        self.v_max_abs = v_max_abs
         self.des_img = np.array(Image.open(des_img_path).convert("RGB"))
         self.LM_LAMBDA = LM_LAMBDA
         self.LM_MU = LM_MU
@@ -35,6 +35,10 @@ class Dfvs:
         vel = -self.LM_LAMBDA * np.linalg.pinv(
             H + self.LM_MU*(H.diagonal())) @ L.T @ flow_error
 
+        max_v_i = np.abs(vel).max()
+        if max_v_i > self.v_max_abs:
+            vel = vel / max_v_i
+
         return vel, np.abs(flow_error).sum()
 
     def set_interaction_utils(self):
@@ -57,11 +61,9 @@ class Dfvs:
             "zero": np.zeros_like(x)
         }
 
-    def get_interaction_mat(self, Z, mode=None):
+    def get_interaction_mat(self, Z, mode):
         assert Z.shape == self.img_shape, (Z.shape, self.img_shape)
 
-        if mode is None:
-            mode = self.mode
         if mode == self.TRUEDEPTH:
             Zi = 10/(Z + 1)
         elif mode == self.FLOWDEPTH:

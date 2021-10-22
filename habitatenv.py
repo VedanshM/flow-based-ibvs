@@ -123,7 +123,7 @@ class HabitatEnv:
 
     def step_agent(self, velocity, FPS=100):
         v = velocity * [1, -1, -1, 1, -1, 1]/FPS
-        # v[3:] = np.rad2deg(v[3:])
+        v[3:] = np.rad2deg(v[3:])
         self.sim.config.agents[0].action_space['move_right'].actuation.amount = v[0]
         self.sim.config.agents[0].action_space['move_up'].actuation.amount = v[1]
         self.sim.config.agents[0].action_space['move_backward'].actuation.amount = v[2]
