@@ -1,5 +1,6 @@
 from dfvs import Dfvs
 from utils.utils import photometric_error
+from time import time
 from os.path import join as pathjoin
 from habitatenv import HabitatEnv
 from config import (DEST_IMG_PATH, ERROR_THRESH, MAX_STEPS,
@@ -19,10 +20,12 @@ def main():
     print("Init error: ", photo_err)
 
     while photo_err > ERROR_THRESH and steps < MAX_STEPS:
+        stime = time()
         vel, flow_error = dfvs.get_next_velocity(sim.obs_rgb,
                                     #  depth=sim.obs_depth,       # for true depth
                                      prev_img=prev_img,       # for flow depth
                                      )
+        print("TIME: ", time()-stime)
         sim.step_agent(vel, FPS=100)
 
         steps += 1
