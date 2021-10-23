@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf results/frame*png
+rm -rf $1/results_dfvs/frame*png

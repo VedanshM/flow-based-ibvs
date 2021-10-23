@@ -1,19 +1,32 @@
+import os
 from dfvs import Dfvs
 from utils.utils import photometric_error
 from time import time
+import sys
 from os.path import join as pathjoin
 from habitatenv import HabitatEnv
 from config import (DEST_IMG_PATH, ERROR_THRESH, MAX_STEPS,
-                    PHOTO_ERR_LOG_FILE, RESULTS_PATH)
+                    sim_settings, RESULTS_PATH, LOGS_PATH)
 
 
 def main():
-    sim = HabitatEnv()
+    if len(sys.argv) > 1:
+        global DEST_IMG_PATH, RESULTS_PATH, LOGS_PATH
+        folder = sys.argv[1]
+        sim_settings["scene_id"] = pathjoin(
+            folder, os.path.basename(folder).capitalize() + ".glb")
+        DEST_IMG_PATH = pathjoin(folder, "des.png")
+        RESULTS_PATH = pathjoin(folder, "results_dfvs")
+        LOGS_PATH = pathjoin(folder, "logs_dfvs")
+
+    os.makedirs(RESULTS_PATH, exist_ok=True)
+    os.makedirs(LOGS_PATH, exist_ok=True)
+    p_err_log_f = open(pathjoin(LOGS_PATH, "p_err.txt"), "w+")
+    sim = HabitatEnv(sim_settings)
     dfvs = Dfvs(DEST_IMG_PATH)
-    p_err_log_f = open(PHOTO_ERR_LOG_FILE, "w+")
 
     steps = 0
-    sim.save_color_obs(RESULTS_PATH + "frame_%05d.png" % steps)
+    sim.save_color_obs(pathjoin(RESULTS_PATH, "frame_%05d.png" % steps))
     prev_img = sim.obs_rgb
     photo_err = photometric_error(prev_img, dfvs.des_img)
     print("Init error: ", photo_err)
