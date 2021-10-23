@@ -121,8 +121,8 @@ class HabitatEnv:
         self.sim = habitat_sim.Simulator(config)
         self.sim.initialize_agent(settings["default_agent"])
 
-    def step_agent(self, velocity, FPS=100):
-        v = velocity * [1, -1, -1, 1, -1, 1]/FPS
+    def step_agent(self, velocity, steps_per_sec=100):
+        v = velocity * [1, -1, -1, 1, -1, 1]/steps_per_sec
         v[3:] = np.rad2deg(v[3:])
         self.sim.config.agents[0].action_space['move_right'].actuation.amount = v[0]
         self.sim.config.agents[0].action_space['move_up'].actuation.amount = v[1]
@@ -174,7 +174,7 @@ def testing():
     vel = np.zeros(6)
     vel[:3] = [1.5, -0.25, 2]
     vel[3:] = [10, -20, 3]
-    sim.step_agent(vel, FPS=1)
+    sim.step_agent(vel, steps_per_sec=1)
     with open("des_pose.txt", "w+") as f:
         f.write(str(sim.agent_state_compact))
     Image.fromarray(sim.cur_obs["color_sensor"], mode="RGBA").save("des.png")

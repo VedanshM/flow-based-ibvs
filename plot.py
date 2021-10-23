@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from os import path
-from config import FLOW_ERR_LOG_FILE, RESULTS_PATH, PHOTO_ERR_LOG_FILE
+from config import RESULTS_PATH, PHOTO_ERR_LOG_FILE
 
 
 def create_graph(file, ylabel, name):
@@ -18,5 +18,4 @@ def create_graph(file, ylabel, name):
     plt.close()
 
 
-create_graph(FLOW_ERR_LOG_FILE, "Flow Error", "flow_error.png")
 create_graph(PHOTO_ERR_LOG_FILE, "Photometric Error", "photo_error.png")

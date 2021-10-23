@@ -4,10 +4,21 @@ from PIL import Image
 
 
 class Dfvs:
+    '''
+        Contains code for "DFVS: Deep Flow Guided Scene Agnostic Image Based Visual Servoing"
+        ICRA 2020
+    '''
     TRUEDEPTH = 0
     FLOWDEPTH = 1
 
-    def __init__(self, des_img_path, LM_LAMBDA=0.06, LM_MU=0.03, v_max_abs = 1):
+    def __init__(self, des_img_path:str, LM_LAMBDA=0.06, LM_MU=0.03, v_max_abs = 1):
+        '''
+            des_img_path:   path to destination pose image
+            LM_LAMBDA:      scales the velocity
+            LM_MU:          LM method parameter
+            v_max_abs:      maximum value of any element velocity vector
+                            (set inifinity for unbounded velocity)
+        '''
         self.v_max_abs = v_max_abs
         self.des_img = np.array(Image.open(des_img_path).convert("RGB"))
         self.LM_LAMBDA = LM_LAMBDA
@@ -19,6 +30,12 @@ class Dfvs:
         return self.des_img.shape[:2]
 
     def get_next_velocity(self, cur_img, prev_img=None, depth=None):
+        '''
+            all parameters should be numpy arrays
+            cur_img: current RGB camera image
+            prev_img: previous RGB camera image (to be used for depth estimation using flowdepth)
+            depth: depth sensor readings (prev_img is not used if depth is available)
+        '''
         assert not(prev_img is None and depth is None)
 
         flow_error = get_flow(self.des_img, cur_img)
@@ -35,11 +52,12 @@ class Dfvs:
         vel = -self.LM_LAMBDA * np.linalg.pinv(
             H + self.LM_MU*(H.diagonal())) @ L.T @ flow_error
 
+        # bounding velocity to given range
         max_v_i = np.abs(vel).max()
         if max_v_i > self.v_max_abs:
             vel = vel / max_v_i
 
-        return vel, np.abs(flow_error).sum()
+        return vel
 
     def set_interaction_utils(self):
         row_cnt, col_cnt = self.img_shape
